@@ -30,31 +30,39 @@ class ListVocabularyScreen extends StatefulWidget {
 }
 
 class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
-  final urlRoot = kIsWeb ? webURL : androidURL;
-  bool isUpdateAmount = false;
+  final urlRoot = kIsWeb
+      ? webURL
+      : androidURL; // Chọn URL phù hợp dựa trên môi trường (web hoặc android)
+  bool isUpdateAmount =
+      false; // Biến kiểm tra xem có cập nhật số lượng từ vựng hay không
 
-  late SharedPreferences prefs;
-  User? user;
+  late SharedPreferences
+      prefs; // Khởi tạo SharedPreferences để lưu trữ dữ liệu người dùng
+  User? user; // Biến để lưu trữ dữ liệu người dùng
 
   @override
   void initState() {
     super.initState();
-    loadUser();
-    // futureAchievement = fetchAchievement();
+    loadUser(); // Gọi hàm loadUser khi widget được khởi tạo
+    // futureAchievement = fetchAchievement(); // Bình luận tạm thời, có thể là một yêu cầu dữ liệu thành tích
   }
 
   loadUser() async {
-    user = await getUserData();
-    setState(() {});
+    user =
+        await getUserData(); // Tải dữ liệu người dùng từ SharedPreferences hoặc từ một API
+    setState(() {}); // Cập nhật giao diện khi dữ liệu người dùng đã được tải
   }
 
+// Hàm xóa từ vựng khỏi danh sách
   void deleteWord(String wordId) {
     setState(() {
-      widget.words.removeWhere((word) => word.id == wordId);
-      isUpdateAmount = true;
+      widget.words.removeWhere(
+          (word) => word.id == wordId); // Xóa từ vựng khỏi danh sách
+      isUpdateAmount = true; // Đánh dấu rằng có sự thay đổi về số lượng từ vựng
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
+      // Hiển thị snackbar thông báo đã xóa thành công
       const SnackBar(
         content: Text('Remove word successfully'),
         duration: Duration(seconds: 2),
@@ -62,70 +70,74 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
     );
   }
 
+// Hàm hiển thị dialog để thêm từ vựng mới
   void _addVocabularyDialog() {
-    var key = GlobalKey<FormState>();
-    var englishController = TextEditingController();
-    var vietnameseController = TextEditingController();
-    var descriptionController = TextEditingController();
-    String english = '';
-    String vietnamese = '';
-    String description = '';
+    var key = GlobalKey<FormState>(); // Khởi tạo key cho form
+    var englishController =
+        TextEditingController(); // Controller cho ô nhập từ vựng tiếng Anh
+    var vietnameseController =
+        TextEditingController(); // Controller cho ô nhập từ vựng tiếng Việt
+    var descriptionController =
+        TextEditingController(); // Controller cho ô nhập mô tả
+    String english = ''; // Biến lưu trữ từ vựng tiếng Anh
+    String vietnamese = ''; // Biến lưu trữ từ vựng tiếng Việt
+    String description = ''; // Biến lưu trữ mô tả từ vựng
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Add Vocabulary"),
+          title: Text("Add Vocabulary"), // Tiêu đề của dialog
           content: Form(
-            key: key,
+            key: key, // Gán key cho form
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize:
+                  MainAxisSize.min, // Duy trì kích thước nhỏ nhất cho dialog
               children: [
                 TextFormField(
-                  controller: englishController,
+                  controller:
+                      englishController, // Controller cho ô nhập từ vựng tiếng Anh
                   decoration: InputDecoration(
-                      labelText: 'English meaning',
+                      labelText: 'English meaning', // Ghi chú cho ô nhập
                       border: OutlineInputBorder()),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter English meaning';
+                      return 'Please enter English meaning'; // Kiểm tra nếu người dùng không nhập từ vựng
                     }
                     return null;
                   },
                   onSaved: (value) {
-                    english = value ?? '';
+                    english = value ?? ''; // Lưu giá trị khi form được lưu
                   },
                 ),
-                SizedBox(
-                  height: 16,
-                ),
+                SizedBox(height: 16), // Khoảng cách giữa các trường
                 TextFormField(
-                  controller: vietnameseController,
+                  controller:
+                      vietnameseController, // Controller cho ô nhập từ vựng tiếng Việt
                   decoration: InputDecoration(
                     labelText: 'Vietname meaning',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter Vietname meaning';
+                      return 'Please enter Vietname meaning'; // Kiểm tra nếu người dùng không nhập từ vựng
                     }
                     return null;
                   },
                   onSaved: (value) {
-                    vietnamese = value ?? '';
+                    vietnamese = value ?? ''; // Lưu giá trị khi form được lưu
                   },
                 ),
-                SizedBox(
-                  height: 16,
-                ),
+                SizedBox(height: 16), // Khoảng cách giữa các trường
                 TextFormField(
-                  controller: descriptionController,
+                  controller:
+                      descriptionController, // Controller cho ô nhập mô tả
                   decoration: InputDecoration(
                     labelText: 'Description (Can be empty)',
                     border: OutlineInputBorder(),
                   ),
                   onSaved: (value) {
-                    description = value ?? '';
+                    description = value ?? ''; // Lưu mô tả nếu có
                   },
                 ),
               ],
@@ -134,14 +146,15 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Đóng dialog khi bấm "Cancel"
               },
               child: Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 if (key.currentState?.validate() ?? false) {
-                  key.currentState?.save();
+                  // Kiểm tra tính hợp lệ của form
+                  key.currentState?.save(); // Lưu các giá trị của form
 
                   var listWord = [
                     {
@@ -151,8 +164,9 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
                     }
                   ];
 
-                  addWords(listWord);
-                  Navigator.of(context).pop();
+                  addWords(listWord); // Thêm từ vựng vào hệ thống
+                  Navigator.of(context)
+                      .pop(); // Đóng dialog sau khi lưu thành công
                 }
               },
               child: Text("Save"),
@@ -163,15 +177,18 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
     );
   }
 
+// Hàm cập nhật từ vựng
   void updateWord(Word word) {
     setState(() {
-      int index = widget.words.indexWhere((w) => w.id == word.id);
+      int index = widget.words.indexWhere(
+          (w) => w.id == word.id); // Tìm chỉ số của từ vựng trong danh sách
       if (index != -1) {
-        widget.words[index] = word;
+        widget.words[index] = word; // Cập nhật từ vựng trong danh sách
       }
     });
   }
 
+// Hàm thêm chủ đề vào người dùng
   Future<void> addTopicToUser() async {
     try {
       var response = await http.post(
@@ -185,6 +202,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
         final data = jsonDecode(response.body);
         if (data['code'] == 0) {
           ScaffoldMessenger.of(context).showSnackBar(
+            // Hiển thị thông báo sau khi thêm chủ đề thành công
             SnackBar(
               content: Text(data['message'].toString()),
               duration: Duration(seconds: 2),
@@ -192,6 +210,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
+            // Thông báo nếu không thành công
             SnackBar(
               content: Text(data['message'].toString()),
               duration: Duration(seconds: 2),
@@ -200,6 +219,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
+          // Thông báo nếu có lỗi trong việc gửi request
           const SnackBar(
             content: Text('Failed to add topic to user'),
             duration: Duration(seconds: 2),
@@ -208,10 +228,11 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
         throw Exception('Failed to add topic to user');
       }
     } catch (err) {
-      print(err);
+      print(err); // In lỗi nếu có ngoại lệ xảy ra
     }
   }
 
+// Hàm thêm từ vào hệ thống
   Future<void> addWords(listWord) async {
     try {
       var response = await http.post(
@@ -220,7 +241,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, dynamic>{
-            'listWord': listWord,
+            'listWord': listWord, // Gửi danh sách từ vựng lên server
           }));
 
       if (response.statusCode == 200) {
@@ -229,12 +250,15 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
           setState(() {
             var newWords = data['newWords'];
             for (var newWord in newWords) {
-              widget.words.add(Word.fromJson(newWord));
+              widget.words.add(
+                  Word.fromJson(newWord)); // Thêm từ vựng mới vào danh sách
             }
-            isUpdateAmount = true;
+            isUpdateAmount =
+                true; // Đánh dấu rằng có sự thay đổi về số lượng từ vựng
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
+            // Hiển thị thông báo nếu không thành công
             SnackBar(
               content: Text(data['message'].toString()),
               duration: Duration(seconds: 2),
@@ -243,6 +267,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
+          // Thông báo nếu không thể thêm từ
           const SnackBar(
             content: Text('Failed to add word'),
             duration: Duration(seconds: 2),
@@ -251,28 +276,30 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
         throw Exception('Failed to add word');
       }
     } catch (err) {
-      print(err);
+      print(err); // In lỗi nếu có ngoại lệ xảy ra
     }
   }
 
+// Hàm hiển thị dialog xác nhận
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm"),
-          content: Text("Are you sure you want to add this topic?"),
+          title: Text("Confirm"), // Tiêu đề của dialog
+          content: Text(
+              "Are you sure you want to add this topic?"), // Nội dung câu hỏi
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng Dialog
+                Navigator.of(context).pop(); // Đóng dialog nếu bấm "Cancel"
               },
               child: Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng Dialog
-                addTopicToUser(); // Gọi hàm addTopicToUser()
+                Navigator.of(context).pop(); // Đóng dialog khi bấm "Confirm"
+                addTopicToUser(); // Gọi hàm addTopicToUser để thêm chủ đề
               },
               child: Text("Confirm"),
             ),

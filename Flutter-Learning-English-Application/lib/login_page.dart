@@ -1,84 +1,107 @@
-import 'dart:convert';
-import 'package:application_learning_english/forgot_password.dart';
-import 'registration.dart';
-import 'package:application_learning_english/toastify/account.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'config.dart';
-import 'home_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'loading_overlay.dart';
-import 'user.dart';
+import 'dart:convert'; // Thư viện giúp mã hóa và giải mã dữ liệu JSON
+import 'package:application_learning_english/forgot_password.dart'; // Import trang quên mật khẩu
+import 'registration.dart'; // Import trang đăng ký
+import 'package:application_learning_english/toastify/account.dart'; // Import thư viện hiển thị toast thông báo
+import 'package:flutter/foundation.dart'; // Thư viện hỗ trợ xác định nền tảng đang chạy (Web, Android, iOS)
+import 'package:flutter/material.dart'; // Thư viện chính của Flutter cho giao diện người dùng
+import 'package:http/http.dart' as http; // Thư viện hỗ trợ gửi yêu cầu HTTP
+import 'config.dart'; // Thư viện chứa các cấu hình URL cho Web và Android
+import 'home_page.dart'; // Import trang chính sau khi đăng nhập
+import 'package:shared_preferences/shared_preferences.dart'; // Thư viện dùng để lưu trữ dữ liệu cục bộ (local storage)
+import 'loading_overlay.dart'; // Thư viện hiển thị overlay loading khi xử lý
+import 'user.dart'; // Lớp người dùng, chứa thông tin của người dùng
 
+// StatefulWidget cho màn hình đăng nhập
 class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
 
   @override
-  State<MyLogin> createState() => _MyLoginState();
+  State<MyLogin> createState() =>
+      _MyLoginState(); // Trạng thái của màn hình đăng nhập
 }
 
 class _MyLoginState extends State<MyLogin> {
-  final urlRoot = kIsWeb ? webURL : androidURL;
+  final urlRoot = kIsWeb
+      ? webURL
+      : androidURL; // Chọn URL tùy thuộc vào nền tảng (Web hoặc Android)
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  bool _isNotValidate = false;
-  bool _isLoading = false;
-  late SharedPreferences prefs;
+  TextEditingController emailController =
+      TextEditingController(); // Controller cho trường nhập email
+  TextEditingController passwordController =
+      TextEditingController(); // Controller cho trường nhập mật khẩu
+  bool _isNotValidate = false; // Biến kiểm tra trạng thái form hợp lệ
+  bool _isLoading = false; // Biến kiểm tra trạng thái loading
+  late SharedPreferences
+      prefs; // Đối tượng SharedPreferences để lưu trữ dữ liệu cục bộ
 
+  // Hàm khởi tạo, chạy khi widget được tạo
   @override
   void initState() {
     super.initState();
-    initSharedPref();
+    initSharedPref(); // Khởi tạo SharedPreferences
   }
 
+  // Hàm khởi tạo SharedPreferences và lấy dữ liệu người dùng (nếu có)
   void initSharedPref() async {
-    prefs = await SharedPreferences.getInstance();
-    String? userJson = prefs.getString('user');
+    prefs = await SharedPreferences
+        .getInstance(); // Lấy đối tượng SharedPreferences
+    String? userJson =
+        prefs.getString('user'); // Kiểm tra nếu đã lưu thông tin người dùng
     if (userJson != null) {
-      Map<String, dynamic> userMap = jsonDecode(userJson);
-      User user = User.fromJson(userMap);
+      Map<String, dynamic> userMap = jsonDecode(userJson); // Giải mã JSON
+      User user = User.fromJson(userMap); // Tạo đối tượng User từ JSON
       setState(() {
-        emailController.text = user.email;
+        emailController.text =
+            user.email; // Điền thông tin email vào trường nhập
       });
     }
   }
 
+  // Hàm đăng nhập người dùng
   void loginUser() async {
     setState(() {
-      _isLoading = true;
+      _isLoading = true; // Bật trạng thái loading khi bắt đầu đăng nhập
     });
+
+    // Kiểm tra xem email và mật khẩu có trống không
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
       var reqBody = {
         'email': emailController.text,
         'password': passwordController.text,
       };
 
+      // Gửi yêu cầu đăng nhập đến server
       var res = await http.post(
-        Uri.parse('$urlRoot/accounts/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(reqBody),
+        Uri.parse('$urlRoot/accounts/login'), // URL đăng nhập
+        headers: {'Content-Type': 'application/json'}, // Đặt header là JSON
+        body: jsonEncode(reqBody), // Mã hóa body request
       );
 
-      var jsonResponse = jsonDecode(res.body);
+      var jsonResponse = jsonDecode(res.body); // Giải mã phản hồi từ server
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Tắt trạng thái loading sau khi có phản hồi
       });
 
+      // Kiểm tra nếu đăng nhập thành công
       if (jsonResponse['code'] == 0) {
-        var myToken = jsonResponse['data']['token'];
-        prefs.setString('token', myToken);
+        var myToken = jsonResponse['data']['token']; // Lấy token từ phản hồi
+        prefs.setString('token', myToken); // Lưu token vào SharedPreferences
+
+        // Tạo đối tượng User từ dữ liệu phản hồi
         User user = User(
           uid: jsonResponse['data']['_id'],
           username: jsonResponse['data']['fullName'] ?? '',
           fullName: jsonResponse['data']['fullName'],
           email: jsonResponse['data']['email'],
           avatar: jsonResponse['data']['avatar_url'] ??
-              'https://firebasestorage.googleapis.com/v0/b/phone-c4bc5.appspot.com/o/default_avatar.jpg?alt=media&token=0ff85744-9209-457b-aaf8-66d1f6893155',
+              'https://firebasestorage.googleapis.com/v0/b/phone-c4bc5.appspot.com/o/default_avatar.jpg?alt=media&token=0ff85744-9209-457b-aaf8-66d1f6893155', // URL avatar mặc định nếu không có
         );
+
+        // Lưu thông tin người dùng vào SharedPreferences
         String userJson = jsonEncode(user.toJson());
         await prefs.setString('user', userJson);
+
+        // Chuyển đến màn hình chính (HomeScreen)
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -86,6 +109,7 @@ class _MyLoginState extends State<MyLogin> {
           ),
         );
       } else {
+        // Nếu đăng nhập thất bại, hiển thị thông báo lỗi
         showErrorToast(
           context: context,
           title: 'Login fail',
@@ -93,47 +117,53 @@ class _MyLoginState extends State<MyLogin> {
         );
       }
     } else {
-      setState(
-        () {
-          _isNotValidate = true;
-          _isLoading = false;
-        },
-      );
+      setState(() {
+        _isNotValidate =
+            true; // Đánh dấu form không hợp lệ nếu trường nhập trống
+        _isLoading = false;
+      });
     }
   }
 
+  // Giao diện của màn hình đăng nhập
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-            image: AssetImage('assets/login.png'), fit: BoxFit.cover),
+            image: AssetImage('assets/login.png'),
+            fit: BoxFit.cover), // Đặt hình nền cho màn hình đăng nhập
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent, // Màu nền trong suốt
         body: LoadingOverlay(
-          isLoading: _isLoading,
+          isLoading: _isLoading, // Trạng thái hiển thị overlay loading
           child: Stack(
             children: [
-              Container(),
+              Container(), // Khung trống
               Container(
-                padding: EdgeInsets.only(left: 35, top: 130),
+                padding: EdgeInsets.only(
+                    left: 35, top: 130), // Khoảng cách từ cạnh trái và trên
                 child: Text(
-                  'Welcome\nBack',
-                  style: TextStyle(color: Colors.white, fontSize: 33),
+                  'Welcome\nBack', // Tiêu đề màn hình đăng nhập
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 33), // Cỡ chữ và màu sắc
                 ),
               ),
               SingleChildScrollView(
                 child: Container(
                   padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.5),
+                      top: MediaQuery.of(context).size.height *
+                          0.5), // Căn chỉnh lại phần nhập liệu
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(left: 35, right: 35),
+                        margin: EdgeInsets.only(
+                            left: 35, right: 35), // Đặt lề cho khung nhập liệu
                         child: Column(
                           children: [
+                            // Trường nhập email
                             TextField(
                               controller: emailController,
                               style: TextStyle(color: Colors.black),
@@ -142,35 +172,36 @@ class _MyLoginState extends State<MyLogin> {
                                   filled: true,
                                   errorStyle: TextStyle(color: Colors.black),
                                   errorText: _isNotValidate
-                                      ? "Enter your email"
+                                      ? "Enter your email" // Hiển thị lỗi nếu email trống
                                       : null,
-                                  hintText: "Email",
+                                  hintText: "Email", // Gợi ý cho trường nhập
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   )),
                             ),
                             SizedBox(
-                              height: 30,
-                            ),
+                                height:
+                                    30), // Khoảng cách giữa các trường nhập liệu
+                            // Trường nhập mật khẩu
                             TextField(
                               controller: passwordController,
                               style: TextStyle(),
-                              obscureText: true,
+                              obscureText: true, // Ẩn mật khẩu
                               decoration: InputDecoration(
                                   fillColor: Colors.grey.shade100,
                                   filled: true,
                                   errorStyle: TextStyle(color: Colors.black),
                                   errorText: _isNotValidate
-                                      ? "Enter your password"
+                                      ? "Enter your password" // Hiển thị lỗi nếu mật khẩu trống
                                       : null,
-                                  hintText: "Password",
+                                  hintText: "Password", // Gợi ý cho trường nhập
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   )),
                             ),
                             SizedBox(
-                              height: 40,
-                            ),
+                                height: 40), // Khoảng cách dưới trường mật khẩu
+                            // Nút đăng nhập
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -186,37 +217,22 @@ class _MyLoginState extends State<MyLogin> {
                                   child: IconButton(
                                       color: Colors.white,
                                       onPressed: () {
-                                        loginUser();
+                                        loginUser(); // Gọi hàm loginUser khi nhấn nút đăng nhập
                                       },
-                                      icon: Icon(
-                                        Icons.arrow_forward,
-                                      )),
-                                )
+                                      icon: Icon(Icons.arrow_forward)),
+                                ),
                               ],
                             ),
-                            SizedBox(
-                              height: 40,
-                            ),
+                            SizedBox(height: 40),
+                            // Nút đăng ký và quên mật khẩu
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                MyRegister()));
-                                  },
-                                  style: ButtonStyle(),
-                                  child: Text(
-                                    'Sign Up',
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      color: Color(0xff4c505b),
-                                      fontSize: 18,
-                                    ),
+                                Text(
+                                  'Chưa có tài khoản',
+                                  style: TextStyle(
+                                    color: Color(0xff4c505b),
+                                    fontSize: 18,
                                   ),
                                 ),
                                 TextButton(
@@ -224,12 +240,14 @@ class _MyLoginState extends State<MyLogin> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ForgotPassword(),
+                                        builder: (context) => MyRegister(),
                                       ),
-                                    );
+                                    ); // Chuyển đến màn hình đăng ký
                                   },
+                                  style: ButtonStyle(),
                                   child: Text(
-                                    'Forgot Password',
+                                    'Sign Up',
+                                    textAlign: TextAlign.left,
                                     style: TextStyle(
                                       decoration: TextDecoration.underline,
                                       color: Color(0xff4c505b),

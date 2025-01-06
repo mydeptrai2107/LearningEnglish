@@ -2,7 +2,6 @@ const package = require("../middlewares/package.js");
 const Account = require("../models/Account.js");
 const bcypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const mailer = require("../utils/mailer");
 
 module.exports = {
     login: async (req, res) => {
@@ -69,15 +68,6 @@ module.exports = {
             const result = await newAccount.save();
             if (!result) return res.json(package(1, "Can not save user", null));
 
-            const mailResult = await mailer.sendMail(
-                email,
-                "Quiz Card - Your accout has been created",
-                accountCreateAccount(fullName)
-            );
-            if (mailResult.status === "error")
-                return res.json(
-                    package(1, "Internal error", mailResult.message)
-                );
             return res.json(package(0, "Save user successfully", result));
         } catch (error) {
             res.json(package(2, "Internal error", error.message));
@@ -96,37 +86,37 @@ module.exports = {
         }
     },
 
-    resendVerifyEmail: async (req, res) => {
-        try {
-            const { email } = req.body;
+    // resendVerifyEmail: async (req, res) => {
+    //     try {
+    //         const { email } = req.body;
 
-            const user = await Account.findOne({ email: email });
-            if (!user) return res.json(package(1, "Can not find user", null));
+    //         const user = await Account.findOne({ email: email });
+    //         if (!user) return res.json(package(1, "Can not find user", null));
 
-            // Tạo mật khẩu mới
-            const password = generatePassword();
-            const hashedPassword = bcypt.hashSync(password, 10);
+    //         // Tạo mật khẩu mới
+    //         const password = generatePassword();
+    //         const hashedPassword = bcypt.hashSync(password, 10);
 
-            // Cập nhật mật khẩu người dùng
-            user.password = hashedPassword;
-            await user.save();
+    //         // Cập nhật mật khẩu người dùng
+    //         user.password = hashedPassword;
+    //         await user.save();
 
-            // Gửi email thông báo
-            const mailResult = await mailer.sendMail(
-                email,
-                "Reset your password",
-                annouceChangAccount(user.fullName, password)
-            );
-            if (mailResult.status === "error")
-                return res.json(
-                    package(1, "Internal error", mailResult.message)
-                );
+    //         // Gửi email thông báo
+    //         const mailResult = await mailer.sendMail(
+    //             email,
+    //             "Reset your password",
+    //             annouceChangAccount(user.fullName, password)
+    //         );
+    //         if (mailResult.status === "error")
+    //             return res.json(
+    //                 package(1, "Internal error", mailResult.message)
+    //             );
 
-            return res.json(package(0, "Send email successfully", null));
-        } catch (error) {
-            return res.json(package(2, "Internal error", error.message));
-        }
-    },
+    //         return res.json(package(0, "Send email successfully", null));
+    //     } catch (error) {
+    //         return res.json(package(2, "Internal error", error.message));
+    //     }
+    // },
 
     changePassword: async (req, res) => {
         try {

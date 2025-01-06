@@ -127,15 +127,21 @@ class _PopularFlashcardState extends State<PopularFlashcard> {
   }
 }
 
+// Widget để hiển thị kết quả tìm kiếm cho các chủ đề
 Widget buildSearchTopics(topics) {
+  // Kiểm tra xem có chủ đề nào trong danh sách không
   return topics.length > 0
-      ? buildSection('Result search', topics)
+      ? buildSection(
+          'Result search', topics) // Nếu có chủ đề, tạo phần hiển thị chủ đề
       : Center(
-          child: Text('No topic'),
+          child: Text(
+              'No topic'), // Nếu không có chủ đề, hiển thị thông báo "Không có chủ đề"
         );
 }
 
+// Widget để phân loại và hiển thị các chủ đề theo bộ lọc (như Hôm nay, Hôm qua, v.v.)
 Widget buildTopicSections(topics, selectedFilter) {
+  // Tạo một map để phân loại các chủ đề theo các khoảng thời gian khác nhau
   Map<String, List<Topic>> categorizedTopics = {
     'Today': [],
     'Yesterday': [],
@@ -145,11 +151,14 @@ Widget buildTopicSections(topics, selectedFilter) {
     'More This Year': [],
   };
 
+  // Phân loại các chủ đề theo ngày tạo của chúng
   for (var topic in topics) {
-    String section = getSectionsFromCreateAt(topic.createAt);
-    categorizedTopics[section]?.add(topic);
+    String section = getSectionsFromCreateAt(
+        topic.createAt); // Lấy phần loại (Hôm nay, Hôm qua, v.v.)
+    categorizedTopics[section]?.add(topic); // Thêm chủ đề vào phần tương ứng
   }
 
+  // Cờ để theo dõi các phần nào cần hiển thị dựa trên bộ lọc đã chọn
   bool isEmptyFilter = true;
 
   bool hasToday = false;
@@ -159,6 +168,7 @@ Widget buildTopicSections(topics, selectedFilter) {
   bool hasThisYear = false;
   bool hasAll = false;
 
+  // Kiểm tra xem các phần có chứa chủ đề và nếu chúng phù hợp với bộ lọc đã chọn
   if (categorizedTopics['Today']!.isNotEmpty &&
       (selectedFilter == 'Today' ||
           selectedFilter == 'During 7 days' ||
@@ -178,6 +188,7 @@ Widget buildTopicSections(topics, selectedFilter) {
     hasYesterday = true;
     isEmptyFilter = false;
   }
+
   if (categorizedTopics['During 7 days']!.isNotEmpty &&
       (selectedFilter == 'During 7 days' ||
           selectedFilter == 'This Month' ||
@@ -186,6 +197,7 @@ Widget buildTopicSections(topics, selectedFilter) {
     hasDuring7days = true;
     isEmptyFilter = false;
   }
+
   if (categorizedTopics['This Month']!.isNotEmpty &&
       (selectedFilter == 'This Month' ||
           selectedFilter == 'This Year' ||
@@ -193,27 +205,34 @@ Widget buildTopicSections(topics, selectedFilter) {
     hasThisMonth = true;
     isEmptyFilter = false;
   }
+
   if (categorizedTopics['This Year']!.isNotEmpty &&
       (selectedFilter == 'This Year' || selectedFilter == 'All')) {
     hasThisYear = true;
     isEmptyFilter = false;
   }
+
   if (categorizedTopics['More This Year']!.isNotEmpty &&
       selectedFilter == 'All') {
     hasAll = true;
     isEmptyFilter = false;
   }
 
+  // Nếu không có phần nào khớp với bộ lọc, hiển thị thông báo
   if (isEmptyFilter) {
     return Center(
-      child: Text('No topic'),
+      child: Text(
+          'No topic'), // Nếu không có chủ đề nào khớp bộ lọc, hiển thị "Không có chủ đề"
     );
   }
 
+  // Trả về ListView chứa các phần được lọc
   return ListView(
-    shrinkWrap: true,
-    physics: NeverScrollableScrollPhysics(),
+    shrinkWrap: true, // Để tránh cuộn khi nằm trong widget có thể cuộn được
+    physics:
+        NeverScrollableScrollPhysics(), // Vô hiệu hóa cuộn cho ListView này
     children: [
+      // Thêm các phần vào ListView nếu cờ tương ứng là true
       if (hasToday) buildSection('Today', categorizedTopics['Today']!),
       if (hasYesterday)
         buildSection('Yesterday', categorizedTopics['Yesterday']!),
@@ -229,6 +248,7 @@ Widget buildTopicSections(topics, selectedFilter) {
   );
 }
 
+// Widget giúp tạo phần với tiêu đề và danh sách chủ đề
 Widget buildSection(String title, List<Topic> topics) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,18 +256,20 @@ Widget buildSection(String title, List<Topic> topics) {
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Text(
-          title,
+          title, // Tiêu đề của phần (ví dụ: "Today", "Yesterday")
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold, color: Colors.purple),
         ),
       ),
+      // Tạo ListView cho các chủ đề trong phần
       ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: topics.length,
+        shrinkWrap: true, // Ngăn ListView chiếm không gian quá lớn
+        physics:
+            NeverScrollableScrollPhysics(), // Vô hiệu hóa cuộn cho ListView này
+        itemCount: topics.length, // Số lượng chủ đề trong phần
         itemBuilder: (context, index) {
           return TopicItem(
-            topic: topics[index],
+            topic: topics[index], // Hiển thị từng chủ đề bằng widget TopicItem
           );
         },
       ),
@@ -255,25 +277,28 @@ Widget buildSection(String title, List<Topic> topics) {
   );
 }
 
+// Hàm phân loại chủ đề theo ngày tạo
 String getSectionsFromCreateAt(createAt) {
-  String yyMmDddd = createAt.split('T')[0];
+  String yyMmDddd =
+      createAt.split('T')[0]; // Lấy phần ngày (ví dụ: "2022-09-30")
   int year = int.parse(yyMmDddd.split('-')[0]);
   int month = int.parse(yyMmDddd.split('-')[1]);
   int day = int.parse(yyMmDddd.split('-')[2]);
 
   DateTime now = DateTime.now();
 
+  // Trả về phần loại tương ứng dựa trên việc so sánh với ngày hiện tại
   if (year == now.year && month == now.month && day == now.day) {
-    return 'Today';
+    return 'Today'; // Chủ đề được tạo hôm nay
   } else if (year == now.year && month == now.month && day == now.day - 1) {
-    return 'Yesterday';
+    return 'Yesterday'; // Chủ đề được tạo hôm qua
   } else if (year == now.year && month == now.month && day > now.day - 7) {
-    return 'During 7 days';
+    return 'During 7 days'; // Chủ đề được tạo trong 7 ngày qua
   } else if (year == now.year && month == now.month) {
-    return 'This Month';
+    return 'This Month'; // Chủ đề được tạo trong tháng này
   } else if (year == now.year) {
-    return 'This Year';
+    return 'This Year'; // Chủ đề được tạo trong năm nay
   } else {
-    return 'More This Year';
+    return 'More This Year'; // Chủ đề được tạo trước năm nay
   }
 }

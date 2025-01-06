@@ -18,7 +18,7 @@ router.post("/login", login);
 router.get("/:uid", getProfile);
 
 //[get] /resetPassword
-router.post("/reset", resendVerifyEmail);
+// router.post("/reset", resendVerifyEmail);
 
 //[post]
 router.post("/changePassword", changePassword);
