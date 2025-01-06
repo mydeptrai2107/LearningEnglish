@@ -1,0 +1,26 @@
+[
+    {
+        "username": "john_doe",
+        "fullName": "John Doe",
+        "email": "john.doe@example.com",
+        "password": "hashedpassword123",
+        "role": "user",
+        "avatar_url": "https://example.com/avatar_john.jpg"
+    },
+    {
+        "username": "jane_smith",
+        "fullName": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "password": "hashedpassword456",
+        "role": "user",
+        "avatar_url": "https://example.com/avatar_jane.jpg"
+    },
+    {
+        "username": "admin_user",
+        "fullName": "Admin User",
+        "email": "admin@example.com",
+        "password": "hashedpasswordadmin",
+        "role": "admin",
+        "avatar_url": "https://example.com/avatar_admin.jpg"
+    }
+]

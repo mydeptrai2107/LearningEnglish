@@ -1,0 +1,26 @@
+[
+    {
+        "_id": "64aa9c2f82b1f5b354c7e9a1",
+        "topicName": "Basic Vocabulary",
+        "isPublic": true,
+        "owner": "john_doe",
+        "total": 20,
+        "createAt": "2025-01-01T10-00-00"
+    },
+    {
+        "_id": "64aa9c2f82b1f5b354c7e9a2",
+        "topicName": "Common Phrases",
+        "isPublic": true,
+        "owner": "jane_smith",
+        "total": 15,
+        "createAt": "2025-01-02T11-30-00"
+    },
+    {
+        "_id": "64aa9c2f82b1f5b354c7e9a3",
+        "topicName": "Advanced Grammar",
+        "isPublic": false,
+        "owner": "admin_user",
+        "total": 25,
+        "createAt": "2025-01-03T14-45-00"
+    }
+]

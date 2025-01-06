@@ -1,0 +1,20 @@
+[
+    {
+        "username": "john_doe",
+        "topicId": "64aa9c2f82b1f5b354c7e9a1",
+        "mode": "flashcard",
+        "total": 20,
+        "correct": 18,
+        "duration": 600,
+        "createAt": "2025-01-09T12-30-00"
+    },
+    {
+        "username": "jane_smith",
+        "topicId": "64aa9c2f82b1f5b354c7e9a2",
+        "mode": "quiz",
+        "total": 15,
+        "correct": 12,
+        "duration": 900,
+        "createAt": "2025-01-10T14-00-00"
+    }
+]
