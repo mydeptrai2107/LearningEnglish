@@ -7,13 +7,13 @@ import 'all_constants.dart';
 import 'reusable_card.dart';
 import 'package:application_learning_english/models/word.dart';
 
-// FlashCard widget chính, đây là nơi tạo giao diện flashcard và quản lý các hành động
+
 class FlashCard extends StatefulWidget {
-  final List<Word> words; // Danh sách các từ vựng
-  final bool isShuffle; // Cờ chỉ định có trộn từ hay không
+  final List<Word> words;
+  final bool isShuffle;
   final bool
-      isEnglish; // Cờ xác định ngôn ngữ hiển thị là tiếng Anh hay tiếng Việt
-  final bool autoPronounce; // Cờ xác định có tự động phát âm từ không
+      isEnglish;
+  final bool autoPronounce;
 
   const FlashCard({
     super.key,
@@ -25,91 +25,90 @@ class FlashCard extends StatefulWidget {
 
   @override
   State<FlashCard> createState() =>
-      _FlashCardState(); // Trả về trạng thái của FlashCard
+      _FlashCardState();
 }
 
 class _FlashCardState extends State<FlashCard> {
-  late List<Map<String, String>> wordPairs; // Danh sách các cặp từ (Anh - Việt)
-  int _currentIndexNumber = 0; // Chỉ số của từ hiện tại
-  double _initial = 0.1; // Giá trị ban đầu của thanh tiến trình
-  bool isFlipped = false; // Cờ xác định flashcard có bị lật hay không
-  bool autoFlippedEnable = false; // Cờ kiểm tra việc tự động lật flashcard
-  double _startX = 0; // Vị trí bắt đầu của thao tác vuốt
-  double _endX = 0; // Vị trí kết thúc của thao tác vuốt
-  Timer? flipTimer; // Bộ đếm thời gian cho việc lật flashcard tự động
-  Timer? changeCardTimer; // Bộ đếm thời gian để chuyển sang thẻ tiếp theo
+  late List<Map<String, String>> wordPairs;
+  int _currentIndexNumber = 0;
+  double _initial = 0.1;
+  bool isFlipped = false;
+  bool autoFlippedEnable = false;
+  double _startX = 0;
+  double _endX = 0;
+  Timer? flipTimer;
+  Timer? changeCardTimer;
   final GlobalKey<FlipCardState> cardKey =
-      GlobalKey<FlipCardState>(); // Khóa để quản lý trạng thái của FlipCard
-  FlutterTts flutterTts = FlutterTts(); // Đối tượng phát âm
+      GlobalKey<FlipCardState>();
+  FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
     if (autoFlippedEnable) {
-      startAutoFlip(); // Khởi tạo việc lật tự động nếu cần
+      startAutoFlip();
     }
-    getDataWord(); // Lấy dữ liệu từ từ vựng
+    getDataWord();
     if (widget.isShuffle) {
-      wordPairs.shuffle(); // Nếu cần trộn, trộn danh sách từ vựng
+      wordPairs.shuffle();
     }
     if (widget.autoPronounce) {
-      pronounceCurrentWord(); // Phát âm từ hiện tại nếu bật tính năng tự động phát âm
+      pronounceCurrentWord();
     }
   }
 
-  // Hàm lấy dữ liệu từ các từ vựng
+
   void getDataWord() {
     wordPairs = widget.words.map((word) {
       return {
         'english': word.english,
         'vietnamese': word.vietnamese
-      }; // Tạo danh sách cặp từ (Anh - Việt)
+      };
     }).toList();
   }
 
   @override
   void dispose() {
-    flipTimer?.cancel(); // Hủy bộ đếm thời gian flip khi đóng widget
+    flipTimer?.cancel();
     changeCardTimer
-        ?.cancel(); // Hủy bộ đếm thời gian chuyển thẻ khi đóng widget
+        ?.cancel();
     super.dispose();
   }
 
-  // Hàm bắt đầu lật flashcard tự động sau một khoảng thời gian
+
   void startAutoFlip() {
     flipTimer = Timer.periodic(Duration(seconds: 3), (timer) {
-      cardKey.currentState?.toggleCard(); // Lật flashcard
+      cardKey.currentState?.toggleCard();
       setState(() {
-        isFlipped = !isFlipped; // Đổi trạng thái lật thẻ
+        isFlipped = !isFlipped;
       });
 
       if (isFlipped) {
         changeCardTimer = Timer(Duration(seconds: 5), () {
-          cardKey.currentState?.toggleCard(); // Lật lại flashcard sau 5 giây
+          cardKey.currentState?.toggleCard();
           setState(() {
-            isFlipped = false; // Đặt lại trạng thái là chưa lật
-            showNextCard(); // Chuyển sang thẻ tiếp theo
-            updateToNext(); // Cập nhật chỉ số thẻ
+            isFlipped = false;
+            showNextCard();
+            updateToNext();
           });
         });
       }
     });
   }
 
-  // Hàm dừng việc lật flashcard tự động
+
   void stopAutoFlip() {
-    flipTimer?.cancel(); // Hủy bộ đếm thời gian lật
-    changeCardTimer?.cancel(); // Hủy bộ đếm thời gian chuyển thẻ
+    flipTimer?.cancel();
+    changeCardTimer?.cancel();
   }
 
-  // Hàm thay đổi trạng thái của việc lật flashcard tự động
   void toggleAutoFlip() {
     setState(() {
-      autoFlippedEnable = !autoFlippedEnable; // Đảo trạng thái của tự động lật
+      autoFlippedEnable = !autoFlippedEnable;
       if (autoFlippedEnable) {
-        startAutoFlip(); // Bắt đầu tự động lật
+        startAutoFlip();
       } else {
-        stopAutoFlip(); // Dừng tự động lật
+        stopAutoFlip();
       }
     });
   }
@@ -119,24 +118,24 @@ class _FlashCardState extends State<FlashCard> {
     String textToSpeak = wordPairs[_currentIndexNumber][isFlipped
         ? (widget.isEnglish ? 'vietnamese' : 'english')
         : (widget.isEnglish ? 'english' : 'vietnamese')]!;
-    flutterTts.speak(textToSpeak); // Phát âm từ hiện tại
+    flutterTts.speak(textToSpeak);
   }
 
   @override
   Widget build(BuildContext context) {
     String value =
-        "${_currentIndexNumber + 1} of ${wordPairs.length}"; // Hiển thị thông tin về tiến độ
+        "${_currentIndexNumber + 1} of ${wordPairs.length}";
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100, // Màu nền của trang
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        centerTitle: true, // Căn giữa tiêu đề app bar
+        centerTitle: true,
         title: Text("Flashcards App",
-            style: TextStyle(fontSize: 30)), // Tiêu đề app
-        backgroundColor: mainColor, // Màu nền app bar
-        toolbarHeight: 80, // Chiều cao của app bar
-        elevation: 5, // Độ đổ bóng của app bar
-        shadowColor: mainColor, // Màu đổ bóng của app bar
+            style: TextStyle(fontSize: 30)),
+        backgroundColor: mainColor,
+        toolbarHeight: 80,
+        elevation: 5,
+        shadowColor: mainColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20), // Bo góc app bar
         ),
@@ -144,12 +143,12 @@ class _FlashCardState extends State<FlashCard> {
           Row(
             children: [
               Text("Auto Flip",
-                  style: TextStyle(fontSize: 16)), // Chữ hiển thị Auto Flip
+                  style: TextStyle(fontSize: 16)),
               Switch(
                 value:
-                    autoFlippedEnable, // Giá trị của switch (bật/tắt tự động lật)
+                    autoFlippedEnable,
                 onChanged: (value) {
-                  toggleAutoFlip(); // Thay đổi trạng thái khi người dùng chuyển switch
+                  toggleAutoFlip();
                 },
               ),
             ],
@@ -159,45 +158,45 @@ class _FlashCardState extends State<FlashCard> {
       body: Center(
         child: Column(
           mainAxisAlignment:
-              MainAxisAlignment.center, // Căn giữa các widget trong cột
+              MainAxisAlignment.center,
           children: <Widget>[
             Text("Question $value Completed",
-                style: otherTextStyle), // Hiển thị tiến độ
+                style: otherTextStyle),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: LinearProgressIndicator(
-                backgroundColor: Colors.white, // Màu nền của thanh tiến trình
+                backgroundColor: Colors.white,
                 valueColor: AlwaysStoppedAnimation(
-                    mainColor), // Màu của thanh tiến trình
-                minHeight: 5, // Chiều cao tối thiểu của thanh tiến trình
-                value: _initial, // Giá trị của thanh tiến trình
+                    mainColor),
+                minHeight: 5,
+                value: _initial,
               ),
             ),
             SizedBox(height: 25),
             GestureDetector(
               onHorizontalDragStart: (details) {
                 _startX =
-                    details.globalPosition.dx; // Lấy vị trí bắt đầu của vuốt
-                stopAutoFlip(); // Dừng lật tự động khi bắt đầu vuốt
+                    details.globalPosition.dx;
+                stopAutoFlip();
               },
               onHorizontalDragUpdate: (details) {
                 _endX =
-                    details.globalPosition.dx; // Lấy vị trí kết thúc của vuốt
+                    details.globalPosition.dx;
               },
               onHorizontalDragEnd: (details) {
                 final double velocity = (_endX - _startX).abs() /
-                    details.primaryVelocity!; // Tính tốc độ vuốt
+                    details.primaryVelocity!;
                 if (velocity > 1000) {
                   final double delta =
-                      _endX - _startX; // Tính sự thay đổi của vị trí
+                      _endX - _startX;
                   if (delta > 0) {
                     if (_currentIndexNumber > 0) {
-                      showPreviousCard(); // Vuốt trái, hiển thị thẻ trước
+                      showPreviousCard();
                     }
                   } else {
                     if (_currentIndexNumber < wordPairs.length - 1) {
-                      showNextCard(); // Vuốt phải, hiển thị thẻ tiếp theo
+                      showNextCard();
                     }
                   }
                 }
@@ -206,15 +205,15 @@ class _FlashCardState extends State<FlashCard> {
                 width: 300,
                 height: 300,
                 child: FlipCard(
-                  // Widget FlipCard hiển thị thẻ với khả năng lật
+
                   key: cardKey,
-                  direction: FlipDirection.HORIZONTAL, // Lật theo chiều ngang
-                  flipOnTouch: false, // Không lật khi chạm vào thẻ
+                  direction: FlipDirection.HORIZONTAL,
+                  flipOnTouch: false,
                   front: GestureDetector(
                     onTap: () {
-                      cardKey.currentState?.toggleCard(); // Lật thẻ khi chạm
+                      cardKey.currentState?.toggleCard();
                       setState(() {
-                        isFlipped = !isFlipped; // Đổi trạng thái thẻ
+                        isFlipped = !isFlipped;
                       });
                       if (widget.autoPronounce) {
                         pronounceCurrentWord(); // Phát âm từ khi lật thẻ
@@ -237,16 +236,16 @@ class _FlashCardState extends State<FlashCard> {
                                       : 'vietnamese']!);
                             },
                           ))
-                    ]), // Thẻ phía trước
+                    ]),
                   ),
                   back: GestureDetector(
                     onTap: () {
-                      cardKey.currentState?.toggleCard(); // Lật thẻ khi chạm
+                      cardKey.currentState?.toggleCard();
                       setState(() {
-                        isFlipped = !isFlipped; // Đổi trạng thái thẻ
+                        isFlipped = !isFlipped;
                       });
                       if (widget.autoPronounce) {
-                        pronounceCurrentWord(); // Phát âm từ khi lật thẻ
+                        pronounceCurrentWord();
                       }
                     },
                     child: Stack(children: [
@@ -273,7 +272,7 @@ class _FlashCardState extends State<FlashCard> {
               ),
             ),
             Text("Tap to view",
-                style: otherTextStyle), // Hướng dẫn người dùng chạm để xem
+                style: otherTextStyle),
             SizedBox(height: 20),
           ],
         ),
@@ -281,18 +280,18 @@ class _FlashCardState extends State<FlashCard> {
     );
   }
 
-  // Cập nhật chỉ số của thẻ hiện tại để chuyển đến thẻ tiếp theo
+
   void updateToNext() {
     setState(() {
       _currentIndexNumber = (_currentIndexNumber + 1) % wordPairs.length;
       _initial = (_currentIndexNumber + 1) / wordPairs.length;
     });
     if (widget.autoPronounce) {
-      pronounceCurrentWord(); // Phát âm từ mới nếu bật tính năng phát âm tự động
+      pronounceCurrentWord();
     }
   }
 
-  // Cập nhật chỉ số của thẻ hiện tại để chuyển về thẻ trước
+
   void updateToPrev() {
     setState(() {
       _currentIndexNumber = (_currentIndexNumber - 1 >= 0)
@@ -301,11 +300,11 @@ class _FlashCardState extends State<FlashCard> {
       _initial = (_currentIndexNumber + 1) / wordPairs.length;
     });
     if (widget.autoPronounce) {
-      pronounceCurrentWord(); // Phát âm từ mới nếu bật tính năng phát âm tự động
+      pronounceCurrentWord();
     }
   }
 
-  // Hiển thị thẻ tiếp theo
+
   void showNextCard() {
     setState(() {
       _currentIndexNumber = (_currentIndexNumber + 1) % wordPairs.length;
@@ -316,7 +315,7 @@ class _FlashCardState extends State<FlashCard> {
     }
   }
 
-  // Hiển thị thẻ trước
+
   void showPreviousCard() {
     setState(() {
       _currentIndexNumber = (_currentIndexNumber - 1 >= 0)

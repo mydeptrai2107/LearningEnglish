@@ -35,13 +35,13 @@ class _LibraryScreenState extends State<LibraryScreen>
   List<Folder> folders = [];
   List<Folder> displayedFolders = [];
 
-  // Hàm cập nhật trạng thái của thư viện, hiển thị trạng thái đang cập nhật trong 500ms
+
   void updatingLibrary() {
     setState(() {
       isUpdate = true; // Đánh dấu trạng thái đang cập nhật
     });
 
-    // Tắt trạng thái cập nhật sau 500ms
+
     Future.delayed(Duration(milliseconds: 500), () {
       setState(() {
         isUpdate = false; // Kết thúc trạng thái cập nhật
@@ -49,36 +49,36 @@ class _LibraryScreenState extends State<LibraryScreen>
     });
   }
 
-// Hàm xóa một chủ đề (topic) dựa trên topicId
-  void deleteTopic(String topicId) {
-    fetchTopics(); // Tải lại danh sách chủ đề sau khi xóa
-    updatingLibrary(); // Cập nhật trạng thái của thư viện
 
-    // Hiển thị thông báo xóa thành công
+  void deleteTopic(String topicId) {
+    fetchTopics();
+    updatingLibrary();
+
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Remove topic successfully'),
-        duration: Duration(seconds: 2),
+        duration: Duration(seconds: 2)
       ),
     );
   }
 
-// Hàm khởi tạo, thiết lập ban đầu khi widget được tạo
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: 2, vsync: this); // Tạo bộ điều khiển tab với 2 tab
+        length: 2, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
-        _onTabChanged(_tabController.index); // Xử lý khi tab thay đổi
+        _onTabChanged(_tabController.index);
       }
     });
-    fetchTopics(); // Lấy dữ liệu danh sách chủ đề
-    fetchFolders(); // Lấy dữ liệu danh sách thư mục
+    fetchTopics();
+    fetchFolders();
   }
 
-// Hàm tải danh sách chủ đề từ API
+
   Future<void> fetchTopics() async {
     try {
       print('$urlRoot/topics/library/${widget.username}'); // Log URL để debug
@@ -86,24 +86,24 @@ class _LibraryScreenState extends State<LibraryScreen>
           .get(Uri.parse('$urlRoot/topics/library/${widget.username}'));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body); // Phân tích dữ liệu JSON từ API
+        final data = jsonDecode(response.body);
         setState(() {
           Iterable it = data['topics'];
           topics = it
               .map((json) => Topic.fromJson(json))
-              .toList(); // Chuyển JSON thành danh sách chủ đề
-          selectedFilter = 'This Month'; // Đặt bộ lọc mặc định
+              .toList();
+          selectedFilter = 'This Month';
         });
       } else {
         throw Exception(
-            'Failed to load topics'); // Báo lỗi nếu API không thành công
+            'Failed to load topics');
       }
     } catch (err) {
-      print(err); // Log lỗi
+      print(err);
     }
   }
 
-// Hàm tải danh sách thư mục từ API
+
   Future<void> fetchFolders() async {
     try {
       var response =
@@ -115,12 +115,12 @@ class _LibraryScreenState extends State<LibraryScreen>
           setState(() {
             folders = (data['listFolder'] as List)
                 .map((json) => Folder.fromJson(json))
-                .toList(); // Chuyển JSON thành danh sách thư mục
+                .toList();
           });
-          displayedFolders = folders; // Hiển thị thư mục
+          displayedFolders = folders;
         }
       } else {
-        throw Exception('Failed to load folders'); // Báo lỗi nếu không tải được
+        throw Exception('Failed to load folders');
       }
     } catch (err) {
       print(err); // Log lỗi
@@ -133,21 +133,21 @@ class _LibraryScreenState extends State<LibraryScreen>
       var response = await http.post(Uri.parse('$urlRoot/topics/add'),
           headers: <String, String>{
             'Content-Type':
-                'application/json; charset=UTF-8', // Header định dạng JSON
+                'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, dynamic>{
             'topicName': topicName,
             'isPublic': isPublic,
             'owner': widget.username
-          })); // Gửi dữ liệu chủ đề mới
+          }));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 0) {
-          await fetchTopics(); // Tải lại danh sách chủ đề
-          updatingLibrary(); // Cập nhật trạng thái
+          await fetchTopics();
+          updatingLibrary();
         } else {
-          // Hiển thị thông báo từ server
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(data['message'].toString()),
@@ -156,7 +156,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           );
         }
       } else {
-        // Hiển thị thông báo lỗi
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to add topic'),
@@ -166,14 +166,14 @@ class _LibraryScreenState extends State<LibraryScreen>
         throw Exception('Failed to add topic');
       }
     } catch (err) {
-      print(err); // Log lỗi
+      print(err);
     }
   }
 
 // Hàm đổi tên thư mục
   Future<void> renameFolder(Folder folder, folderName) async {
     if (folderName == folder.folderName) {
-      return; // Không thực hiện nếu tên không thay đổi
+      return;// Không thực hiện nếu tên không thay đổi
     }
     try {
       var response = await http.patch(
@@ -213,25 +213,25 @@ class _LibraryScreenState extends State<LibraryScreen>
     }
   }
 
-// Hàm xóa thư mục
+
   Future<void> deleteFolder(Folder folder) async {
     try {
       var response = await http.delete(Uri.parse(
-          '$urlRoot/folders/delete/${folder.id}')); // Gửi yêu cầu xóa thư mục
+          '$urlRoot/folders/delete/${folder.id}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 0) {
-          // Hiển thị thông báo xóa thành công
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Delete folder successfully'),
               duration: Duration(seconds: 2),
             ),
           );
-          fetchFolders(); // Tải lại danh sách thư mục
+          fetchFolders();
         } else {
-          // Hiển thị lỗi từ server
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(data['message'].toString()),
@@ -240,7 +240,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           );
         }
       } else {
-        // Hiển thị thông báo lỗi
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to delete folder'),
@@ -250,7 +250,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         throw Exception('Failed to delete folder');
       }
     } catch (err) {
-      print(err); // Log lỗi
+      print(err);
     }
   }
 
@@ -261,18 +261,18 @@ class _LibraryScreenState extends State<LibraryScreen>
           Uri.parse('$urlRoot/folders/${widget.accountId}/add'),
           headers: <String, String>{
             'Content-Type':
-                'application/json; charset=UTF-8', // Header định dạng JSON
+                'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, dynamic>{
             'folderName': folderName
-          })); // Gửi dữ liệu thư mục mới
+          }));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['code'] == 0) {
-          fetchFolders(); // Tải lại danh sách thư mục
+          fetchFolders();
         } else {
-          // Hiển thị lỗi từ server
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(data['message'].toString()),
@@ -281,7 +281,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           );
         }
       } else {
-        // Hiển thị thông báo lỗi
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to add folder'),
@@ -296,31 +296,29 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   void _addTopicDialog() {
-    // Khóa trạng thái toàn cục để quản lý form
     var key = GlobalKey<FormState>();
 
-    // Biến lưu trữ tên chủ đề và trạng thái công khai
+
     String topicName = '';
     bool isPublic = false;
 
-    // Hiển thị hộp thoại để thêm chủ đề mới
+
     showDialog(
-      context: context, // Ngữ cảnh của ứng dụng
+      context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          // Sử dụng StatefulBuilder để cập nhật trạng thái trong hộp thoại
           builder: (context, setDialogState) => AlertDialog(
-            title: Text("Add New Topic"), // Tiêu đề của hộp thoại
+            title: Text("Add New Topic"),
             content: Form(
-              key: key, // Gán khóa để quản lý trạng thái form
+              key: key,
               child: Column(
                 mainAxisSize:
-                    MainAxisSize.min, // Thu nhỏ chiều cao cột theo nội dung
+                    MainAxisSize.min,
                 children: [
-                  // Trường nhập liệu để lấy tên chủ đề
+
                   TextFormField(
                     decoration: InputDecoration(
-                      labelText: 'Topic Name', // Nhãn cho trường nhập
+                      labelText: 'Topic Name',
                       border: OutlineInputBorder(), // Định dạng đường viền
                     ),
                     validator: (value) {
@@ -341,7 +339,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                       Checkbox(
                         value: isPublic, // Trạng thái của checkbox
                         onChanged: (bool? value) {
-                          // Cập nhật trạng thái công khai khi checkbox thay đổi
+
                           setDialogState(() {
                             isPublic = value ?? false;
                           });
@@ -379,13 +377,12 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   void updateDisplayedFolders(String query) {
-    // Hàm cập nhật danh sách thư mục hiển thị dựa trên từ khóa tìm kiếm
+
     setState(() {
       if (query.isEmpty) {
-        // Nếu không có từ khóa, hiển thị toàn bộ thư mục
         displayedFolders = folders;
       } else {
-        // Lọc các thư mục có chứa từ khóa (không phân biệt chữ hoa/thường)
+
         displayedFolders = folders
             .where((folder) =>
                 folder.folderName.toLowerCase().contains(query.toLowerCase()))
@@ -395,14 +392,14 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   void _onTabChanged(int index) {
-    // Hàm xử lý sự kiện thay đổi tab
+
     if (index == 0) {
-      // Nếu tab đầu tiên được chọn, tắt chế độ tìm kiếm
+
       setState(() {
         isSearching = false;
       });
     } else if (index == 1) {
-      // Nếu tab thứ hai được chọn, hiển thị toàn bộ danh sách thư mục
+
       setState(() {
         displayedFolders = folders;
       });
@@ -410,16 +407,16 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   void _confirmDeleteFolder(folder) {
-    // Hiển thị hộp thoại xác nhận xóa thư mục
+
     showDialog(
       context: context, // Ngữ cảnh ứng dụng
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Deletion"), // Tiêu đề hộp thoại
+          title: Text("Confirm Deletion"),
           content:
               Text("Are you sure you want to delete this folder?"), // Nội dung
           actions: [
-            // Nút hủy để đóng hộp thoại mà không thực hiện hành động nào
+
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng hộp thoại
@@ -442,12 +439,12 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   void _renameFolderDialog(folder) {
     // Hiển thị hộp thoại đổi tên thư mục
-    var key = GlobalKey<FormState>(); // Khóa trạng thái của form
+    var key = GlobalKey<FormState>();
     var folderNameController =
-        TextEditingController(); // Điều khiển để quản lý text input
+        TextEditingController();
     String folderName = '';
 
-    // Gán tên thư mục hiện tại vào text controller
+
     folderNameController.text = folder.folderName;
 
     showDialog(
@@ -478,7 +475,7 @@ class _LibraryScreenState extends State<LibraryScreen>
               ),
             ),
             actions: <Widget>[
-              // Nút Cancel để đóng hộp thoại mà không thực hiện thay đổi
+
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -527,14 +524,14 @@ class _LibraryScreenState extends State<LibraryScreen>
                       border: OutlineInputBorder(), // Đường viền
                     ),
                     validator: (value) {
-                      // Xác thực: tên không được để trống
+
                       if (value == null || value.isEmpty) {
                         return 'Please enter folder name';
                       }
-                      return null; // Hợp lệ nếu không có lỗi
+                      return null;
                     },
                     onSaved: (value) {
-                      folderName = value ?? ''; // Lưu giá trị
+                      folderName = value ?? '';
                     },
                   ),
                 ],
@@ -548,12 +545,12 @@ class _LibraryScreenState extends State<LibraryScreen>
                 },
                 child: Text("Cancel"),
               ),
-              // Nút Save để thêm thư mục mới
+
               TextButton(
                 onPressed: () {
                   if (key.currentState?.validate() ?? false) {
-                    key.currentState?.save(); // Lưu dữ liệu từ form
-                    addFolder(folderName); // Gọi hàm thêm thư mục
+                    key.currentState?.save();
+                    addFolder(folderName);
                     Navigator.of(context).pop(); // Đóng hộp thoại
                   }
                 },
@@ -596,17 +593,14 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   Widget mySets() {
     return Scaffold(
-      // Scaffold giúp tạo ra một cấu trúc cơ bản với AppBar, Body và FloatingActionButton.
       body: SingleChildScrollView(
-        // SingleChildScrollView giúp cuộn nội dung nếu vượt quá kích thước màn hình.
         child: Padding(
-          // Padding cung cấp một khoảng cách đều quanh các phần tử bên trong.
           padding: const EdgeInsets.all(
-              30), // Áp dụng padding với độ rộng 30 cho tất cả các cạnh.
+              30),
           child: Column(
             // Column sắp xếp các phần tử con theo chiều dọc.
             crossAxisAlignment:
-                CrossAxisAlignment.start, // Đặt các phần tử con theo căn trái.
+                CrossAxisAlignment.start,
             children: [
               TextField(
                 // TextField dùng để nhập liệu tìm kiếm.
@@ -618,13 +612,11 @@ class _LibraryScreenState extends State<LibraryScreen>
                       .search), // Thêm biểu tượng tìm kiếm vào bên trái ô nhập liệu.
                 ),
                 onChanged: (value) {
-                  // Khi giá trị trong TextField thay đổi, hàm onChanged sẽ được gọi.
                   setState(() {
-                    // setState để cập nhật trạng thái của widget, giúp giao diện thay đổi.
                     isSearching = value
-                        .isNotEmpty; // Cập nhật trạng thái tìm kiếm, nếu có văn bản tìm kiếm.
+                        .isNotEmpty;
                     searchTopics =
-                        topics // Lọc các chủ đề dựa trên tên chủ đề chứa văn bản tìm kiếm.
+                        topics
                             .where((topic) => topic.topicName
                                 .toLowerCase()
                                 .contains(value
@@ -654,7 +646,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                   'This Year',
                   'All'
                 ].map<DropdownMenuItem<String>>((String value) {
-                  // Chuyển đổi mỗi giá trị thành một DropdownMenuItem.
+
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value), // Hiển thị mỗi giá trị trong dropdown.
@@ -666,13 +658,13 @@ class _LibraryScreenState extends State<LibraryScreen>
                 // Stack cho phép chồng các widget lên nhau.
                 children: [
                   Opacity(
-                    // Opacity giúp thay đổi độ mờ của widget.
+
                     opacity: isSearching
                         ? 0.0
-                        : 1.0, // Nếu đang tìm kiếm thì làm mờ phần này.
+                        : 1.0,
                     child: buildTopicSections(
                         topics,
-                        selectedFilter, // Xây dựng phần hiển thị danh sách chủ đề.
+                        selectedFilter,
                         widget.username,
                         deleteTopic), // Truyền vào các tham số cần thiết.
                   ),
@@ -694,9 +686,8 @@ class _LibraryScreenState extends State<LibraryScreen>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        // FloatingActionButton để thực hiện hành động.
-        onPressed: _addTopicDialog, // Khi nhấn vào, mở hộp thoại thêm chủ đề.
-        child: Icon(Icons.add), // Biểu tượng dấu cộng trên nút.
+        onPressed: _addTopicDialog,
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -715,28 +706,28 @@ class _LibraryScreenState extends State<LibraryScreen>
                 .start, // Căn chỉnh các phần tử theo phía trái.
             children: [
               TextField(
-                // TextField để người dùng nhập tên thư mục tìm kiếm.
+
                 decoration: InputDecoration(
                   hintText:
-                      'Search folder name', // Văn bản gợi ý cho người dùng.
+                      'Search folder name', //
                   prefixIcon: Icon(
-                      Icons.search), // Biểu tượng tìm kiếm bên trái TextField.
+                      Icons.search),
                 ),
                 onChanged: (value) {
-                  // Khi giá trị trong TextField thay đổi, thực hiện tìm kiếm.
+
                   updateDisplayedFolders(
-                      value); // Gọi hàm cập nhật danh sách thư mục được hiển thị.
+                      value);
                 },
               ),
-              SizedBox(height: 20), // Khoảng cách giữa các phần tử.
+              SizedBox(height: 20),
               buildListFolder(
-                // Xây dựng danh sách các thư mục.
-                displayedFolders, // Danh sách thư mục hiển thị.
-                _renameFolderDialog, // Hàm hiển thị hộp thoại đổi tên thư mục.
-                _confirmDeleteFolder, // Hàm xác nhận xóa thư mục.
-                _addTopicDialog, // Hàm mở hộp thoại thêm chủ đề.
-                widget.username, // Truyền vào tên người dùng.
-                topics, // Truyền vào danh sách các chủ đề.
+
+                displayedFolders,
+                _renameFolderDialog,
+                _confirmDeleteFolder,
+                _addTopicDialog,
+                widget.username,
+                topics,
               ),
             ],
           ),
@@ -751,23 +742,23 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 }
 
-// Widget này dùng để hiển thị kết quả tìm kiếm topic nếu có, nếu không sẽ hiển thị thông báo "No topic".
+
 Widget buildSearchTopics(topics, username, deleteTopic) {
   return topics.length > 0
       ? buildSection(
-          'Result search', // Tiêu đề của phần tìm kiếm
-          topics, // Danh sách topic tìm thấy
-          username, // Tên người dùng
-          deleteTopic, // Hàm xóa topic
+          'Result search',
+          topics,
+          username,
+          deleteTopic,
         )
       : Center(
           child: Text(
-              'No topic')); // Nếu không có kết quả tìm kiếm, hiển thị "No topic"
+              'No topic'));
 }
 
-// Widget này dùng để phân loại các topic theo thời gian và hiển thị chúng dựa trên bộ lọc đã chọn.
+
 Widget buildTopicSections(topics, selectedFilter, username, deleteTopic) {
-  // Tạo một bản đồ để phân loại các topic theo thời gian
+
   Map<String, List<Topic>> categorizedTopics = {
     'Today': [],
     'Yesterday': [],
@@ -777,17 +768,17 @@ Widget buildTopicSections(topics, selectedFilter, username, deleteTopic) {
     'More This Year': [],
   };
 
-  // Duyệt qua từng topic và phân loại chúng vào các mục tương ứng dựa vào ngày tạo
+
   for (var topic in topics) {
     String section = getSectionsFromCreateAt(
-        topic.createAt); // Lấy thông tin về thời gian tạo topic
-    categorizedTopics[section]?.add(topic); // Thêm topic vào mục phù hợp
+        topic.createAt);
+    categorizedTopics[section]?.add(topic);
   }
 
-  // Biến kiểm tra xem bộ lọc có bị trống không
+
   bool isEmptyFilter = true;
 
-  // Các biến dùng để kiểm tra xem có topic nào trong mỗi phần hay không
+
   bool hasToday = false;
   bool hasYesterday = false;
   bool hasDuring7days = false;
@@ -852,11 +843,11 @@ Widget buildTopicSections(topics, selectedFilter, username, deleteTopic) {
     );
   }
 
-  // Trả về ListView chứa các phần của topic đã phân loại, tùy thuộc vào bộ lọc đã chọn
+
   return ListView(
     shrinkWrap: true,
     physics:
-        NeverScrollableScrollPhysics(), // Không thể cuộn ngoài danh sách này
+        NeverScrollableScrollPhysics(),
     children: [
       if (hasToday)
         buildSection(
@@ -880,7 +871,7 @@ Widget buildTopicSections(topics, selectedFilter, username, deleteTopic) {
   );
 }
 
-// Widget để xây dựng phần mục các topic theo tiêu đề
+
 Widget buildSection(
     String title, List<Topic> topics, String username, deleteTopic) {
   return Column(

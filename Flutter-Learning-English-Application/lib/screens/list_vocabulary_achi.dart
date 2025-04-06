@@ -32,25 +32,25 @@ class ListVocabularyScreen extends StatefulWidget {
 class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
   final urlRoot = kIsWeb
       ? webURL
-      : androidURL; // Chọn URL phù hợp dựa trên môi trường (web hoặc android)
+      : androidURL;
   bool isUpdateAmount =
-      false; // Biến kiểm tra xem có cập nhật số lượng từ vựng hay không
+      false;
 
   late SharedPreferences
-      prefs; // Khởi tạo SharedPreferences để lưu trữ dữ liệu người dùng
-  User? user; // Biến để lưu trữ dữ liệu người dùng
+      prefs;
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    loadUser(); // Gọi hàm loadUser khi widget được khởi tạo
-    // futureAchievement = fetchAchievement(); // Bình luận tạm thời, có thể là một yêu cầu dữ liệu thành tích
+    loadUser();
+
   }
 
   loadUser() async {
     user =
-        await getUserData(); // Tải dữ liệu người dùng từ SharedPreferences hoặc từ một API
-    setState(() {}); // Cập nhật giao diện khi dữ liệu người dùng đã được tải
+        await getUserData();
+    setState(() {});
   }
 
 // Hàm xóa từ vựng khỏi danh sách
@@ -58,7 +58,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
     setState(() {
       widget.words.removeWhere(
           (word) => word.id == wordId); // Xóa từ vựng khỏi danh sách
-      isUpdateAmount = true; // Đánh dấu rằng có sự thay đổi về số lượng từ vựng
+      isUpdateAmount = true;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -74,14 +74,14 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
   void _addVocabularyDialog() {
     var key = GlobalKey<FormState>(); // Khởi tạo key cho form
     var englishController =
-        TextEditingController(); // Controller cho ô nhập từ vựng tiếng Anh
+        TextEditingController();
     var vietnameseController =
-        TextEditingController(); // Controller cho ô nhập từ vựng tiếng Việt
+        TextEditingController();
     var descriptionController =
-        TextEditingController(); // Controller cho ô nhập mô tả
-    String english = ''; // Biến lưu trữ từ vựng tiếng Anh
-    String vietnamese = ''; // Biến lưu trữ từ vựng tiếng Việt
-    String description = ''; // Biến lưu trữ mô tả từ vựng
+        TextEditingController();
+    String english = '';
+    String vietnamese = '';
+    String description = '';
 
     showDialog(
       context: context,
@@ -96,13 +96,13 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
               children: [
                 TextFormField(
                   controller:
-                      englishController, // Controller cho ô nhập từ vựng tiếng Anh
+                      englishController,
                   decoration: InputDecoration(
                       labelText: 'English meaning', // Ghi chú cho ô nhập
                       border: OutlineInputBorder()),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter English meaning'; // Kiểm tra nếu người dùng không nhập từ vựng
+                      return 'Please enter English meaning';
                     }
                     return null;
                   },
@@ -120,7 +120,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter Vietname meaning'; // Kiểm tra nếu người dùng không nhập từ vựng
+                      return 'Please enter Vietname meaning';
                     }
                     return null;
                   },
@@ -131,7 +131,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
                 SizedBox(height: 16), // Khoảng cách giữa các trường
                 TextFormField(
                   controller:
-                      descriptionController, // Controller cho ô nhập mô tả
+                      descriptionController,
                   decoration: InputDecoration(
                     labelText: 'Description (Can be empty)',
                     border: OutlineInputBorder(),
@@ -146,7 +146,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng dialog khi bấm "Cancel"
+                Navigator.of(context).pop();
               },
               child: Text("Cancel"),
             ),
@@ -181,7 +181,7 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
   void updateWord(Word word) {
     setState(() {
       int index = widget.words.indexWhere(
-          (w) => w.id == word.id); // Tìm chỉ số của từ vựng trong danh sách
+          (w) => w.id == word.id);
       if (index != -1) {
         widget.words[index] = word; // Cập nhật từ vựng trong danh sách
       }
@@ -251,10 +251,10 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
             var newWords = data['newWords'];
             for (var newWord in newWords) {
               widget.words.add(
-                  Word.fromJson(newWord)); // Thêm từ vựng mới vào danh sách
+                  Word.fromJson(newWord));
             }
             isUpdateAmount =
-                true; // Đánh dấu rằng có sự thay đổi về số lượng từ vựng
+                true;
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -286,9 +286,9 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm"), // Tiêu đề của dialog
+          title: Text("Confirm"),
           content: Text(
-              "Are you sure you want to add this topic?"), // Nội dung câu hỏi
+              "Are you sure you want to add this topic?"),
           actions: [
             TextButton(
               onPressed: () {
@@ -298,8 +298,8 @@ class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng dialog khi bấm "Confirm"
-                addTopicToUser(); // Gọi hàm addTopicToUser để thêm chủ đề
+                Navigator.of(context).pop();
+                addTopicToUser();
               },
               child: Text("Confirm"),
             ),

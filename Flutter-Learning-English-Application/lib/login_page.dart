@@ -11,48 +11,47 @@ import 'package:shared_preferences/shared_preferences.dart'; // Thư viện dùn
 import 'loading_overlay.dart'; // Thư viện hiển thị overlay loading khi xử lý
 import 'user.dart'; // Lớp người dùng, chứa thông tin của người dùng
 
-// StatefulWidget cho màn hình đăng nhập
+
 class MyLogin extends StatefulWidget {
   const MyLogin({super.key});
 
   @override
   State<MyLogin> createState() =>
-      _MyLoginState(); // Trạng thái của màn hình đăng nhập
+      _MyLoginState();
 }
 
 class _MyLoginState extends State<MyLogin> {
   final urlRoot = kIsWeb
       ? webURL
-      : androidURL; // Chọn URL tùy thuộc vào nền tảng (Web hoặc Android)
+      : androidURL;
 
   TextEditingController emailController =
-      TextEditingController(); // Controller cho trường nhập email
+      TextEditingController();
   TextEditingController passwordController =
-      TextEditingController(); // Controller cho trường nhập mật khẩu
-  bool _isNotValidate = false; // Biến kiểm tra trạng thái form hợp lệ
+      TextEditingController();
+  bool _isNotValidate = false;
   bool _isLoading = false; // Biến kiểm tra trạng thái loading
   late SharedPreferences
-      prefs; // Đối tượng SharedPreferences để lưu trữ dữ liệu cục bộ
+      prefs;
 
-  // Hàm khởi tạo, chạy khi widget được tạo
   @override
   void initState() {
     super.initState();
     initSharedPref(); // Khởi tạo SharedPreferences
   }
 
-  // Hàm khởi tạo SharedPreferences và lấy dữ liệu người dùng (nếu có)
+
   void initSharedPref() async {
     prefs = await SharedPreferences
         .getInstance(); // Lấy đối tượng SharedPreferences
     String? userJson =
-        prefs.getString('user'); // Kiểm tra nếu đã lưu thông tin người dùng
+        prefs.getString('user');
     if (userJson != null) {
-      Map<String, dynamic> userMap = jsonDecode(userJson); // Giải mã JSON
-      User user = User.fromJson(userMap); // Tạo đối tượng User từ JSON
+      Map<String, dynamic> userMap = jsonDecode(userJson);
+      User user = User.fromJson(userMap);
       setState(() {
         emailController.text =
-            user.email; // Điền thông tin email vào trường nhập
+            user.email;
       });
     }
   }
@@ -60,7 +59,7 @@ class _MyLoginState extends State<MyLogin> {
   // Hàm đăng nhập người dùng
   void loginUser() async {
     setState(() {
-      _isLoading = true; // Bật trạng thái loading khi bắt đầu đăng nhập
+      _isLoading = true;
     });
 
     // Kiểm tra xem email và mật khẩu có trống không

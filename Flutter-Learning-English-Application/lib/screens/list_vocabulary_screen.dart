@@ -34,52 +34,51 @@ class ListVocabularyScreen extends StatefulWidget {
 class _ListVocabularyScreenState extends State<ListVocabularyScreen> {
   final urlRoot = kIsWeb
       ? webURL
-      : androidURL; // Xác định URL gốc dựa trên môi trường (web hoặc Android)
+      : androidURL;
   bool isUpdateAmount =
-      false; // Biến xác định xem số lượng từ vựng đã được cập nhật hay chưa
+      false;
 
-// Hàm để xóa một từ khỏi danh sách từ vựng
   void deleteWord(String wordId) {
     setState(() {
-      // Cập nhật lại giao diện khi dữ liệu thay đổi
+
       widget.words.removeWhere(
-          (word) => word.id == wordId); // Xóa từ có ID trùng với wordId
-      isUpdateAmount = true; // Đánh dấu rằng số lượng từ vựng đã thay đổi
+          (word) => word.id == wordId);
+      isUpdateAmount = true;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       // Hiển thị thông báo thành công
       const SnackBar(
-        content: Text('Remove word successfully'), // Thông báo xóa thành công
+        content: Text('Remove word successfully'),
         duration: Duration(seconds: 2),
       ),
     );
   }
 
-// Hàm để cập nhật thông tin của một từ trong danh sách
+
   void updateWord(Word word) {
     setState(() {
       int index = widget.words.indexWhere(
-          (w) => w.id == word.id); // Tìm chỉ mục của từ trong danh sách
+          (w) => w.id == word.id);
       if (index != -1) {
-        // Nếu tìm thấy từ cần cập nhật
-        widget.words[index] = word; // Cập nhật từ đó
+
+        widget.words[index] = word;
       }
     });
   }
 
-// Hàm để hiển thị hộp thoại thêm từ vựng
+
   void _addVocabularyDialog() {
-    var key = GlobalKey<FormState>(); // Tạo một key để xác thực form
+    var key = GlobalKey<FormState>();
     var englishController =
-        TextEditingController(); // Controller cho trường tiếng Anh
+        TextEditingController();
     var vietnameseController =
-        TextEditingController(); // Controller cho trường tiếng Việt
+        TextEditingController();
     var descriptionController =
-        TextEditingController(); // Controller cho trường mô tả
-    String english = ''; // Biến lưu trữ từ tiếng Anh
-    String vietnamese = ''; // Biến lưu trữ từ tiếng Việt
-    String description = ''; // Biến lưu trữ mô tả
+        TextEditingController();
+    String english = '';
+    String vietnamese = '';
+    String description = '';
 
     showDialog(
       context: context,

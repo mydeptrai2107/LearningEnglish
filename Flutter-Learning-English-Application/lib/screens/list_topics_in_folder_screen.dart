@@ -7,19 +7,19 @@ import 'package:application_learning_english/widgets/topic_item.dart'; // Widget
 import 'package:flutter/foundation.dart'; // Thư viện giúp kiểm tra môi trường (Web hoặc Android).
 import 'package:flutter/material.dart'; // Thư viện Flutter cung cấp các widget UI.
 import 'package:http/http.dart'
-    as http; // Thư viện HTTP để gửi các yêu cầu HTTP tới server.
+    as http;
 
 class ListTopicsInFolderScreen extends StatefulWidget {
-  final Folder folder; // Đối tượng folder chứa các topic.
-  final String username; // Tên người dùng đang đăng nhập.
-  final List<Topic> allTopics; // Danh sách tất cả các topic từ hệ thống.
+  final Folder folder;
+  final String username;
+  final List<Topic> allTopics;
 
   // Constructor của widget, nhận vào các tham số là folder, username và allTopics.
   const ListTopicsInFolderScreen({
     super.key,
-    required this.folder, // Yêu cầu truyền vào folder.
-    required this.username, // Yêu cầu truyền vào username.
-    required this.allTopics, // Yêu cầu truyền vào danh sách allTopics.
+    required this.folder,
+    required this.username,
+    required this.allTopics,
   });
 
   @override
@@ -30,19 +30,18 @@ class ListTopicsInFolderScreen extends StatefulWidget {
 class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
   final urlRoot = kIsWeb
       ? webURL
-      : androidURL; // URL gốc, chọn URL phù hợp với môi trường (Web hoặc Android).
+      : androidURL;
 
-  List<Topic> topics = []; // Danh sách topic trong thư mục hiện tại.
+  List<Topic> topics = [];
 
   @override
   void initState() {
     super.initState();
-    fetachTopicsInFolder(); // Gọi phương thức để tải các topic trong folder.
+    fetachTopicsInFolder();
   }
 
   void deleteTopic(
-      String topicId) {} // Phương thức để xóa topic (hiện tại chưa triển khai).
-
+      String topicId) {}
   // Phương thức để lấy các topic trong thư mục từ server.
   Future<void> fetachTopicsInFolder() async {
     try {
@@ -50,15 +49,15 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
           '$urlRoot/folders/${widget.folder.id}/topics')); // Gửi yêu cầu GET đến server.
 
       if (response.statusCode == 200) {
-        // Kiểm tra nếu trạng thái HTTP là 200 (thành công).
+
         final data =
-            jsonDecode(response.body); // Giải mã JSON từ response body.
+            jsonDecode(response.body);
         setState(() {
-          topics.clear(); // Xóa danh sách topic cũ.
+          topics.clear();
           topics = (data['topics']
-                  as List) // Lấy danh sách topics từ response và chuyển thành List<Topic>.
+                  as List)
               .map((json) => Topic.fromJson(
-                  json)) // Chuyển đổi mỗi đối tượng JSON thành đối tượng Topic.
+                  json))
               .toList();
         });
       } else {
@@ -74,19 +73,19 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
   Future<void> _addTopicToFolder(topicId) async {
     try {
       var response = await http.post(Uri.parse(
-          '$urlRoot/folders/${widget.folder.id}/add-topic/$topicId')); // Gửi yêu cầu POST để thêm topic vào folder.
+          '$urlRoot/folders/${widget.folder.id}/add-topic/$topicId'));
 
       if (response.statusCode == 200) {
         // Nếu yêu cầu thành công.
         final data =
-            jsonDecode(response.body); // Giải mã dữ liệu trả về từ server.
+            jsonDecode(response.body);
         if (data['code'] == 0) {
           // Kiểm tra mã trả về từ server.
           fetachTopicsInFolder(); // Lấy lại danh sách topic sau khi thêm.
         }
       } else {
         throw Exception(
-            'Failed to add topic to folder'); // Nếu có lỗi, ném ngoại lệ.
+            'Failed to add topic to folder');
       }
     } catch (err) {
       print(err); // In lỗi nếu có sự cố trong quá trình gửi yêu cầu.
@@ -98,7 +97,7 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
     try {
       var response = await http.delete(
         Uri.parse(
-          '$urlRoot/folders/${widget.folder.id}/remove-topic/$topicId', // Gửi yêu cầu DELETE để xóa topic khỏi folder.
+          '$urlRoot/folders/${widget.folder.id}/remove-topic/$topicId',
         ),
       );
 
@@ -112,14 +111,14 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
         }
       } else {
         throw Exception(
-            'Failed to remove topic from folder'); // Nếu có lỗi, ném ngoại lệ.
+            'Failed to remove topic from folder');
       }
     } catch (err) {
-      print(err); // In lỗi nếu có sự cố trong quá trình gửi yêu cầu.
+      print(err);
     }
   }
 
-  // Phương thức kiểm tra xem topic đã có trong danh sách chưa.
+
   bool _topicIdsInList(List<Topic> topics, String topicId) {
     for (var topic in topics) {
       // Duyệt qua danh sách topic hiện tại.
@@ -139,11 +138,11 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
         .toList();
 
     if (showTopics.isEmpty) {
-      // Nếu không còn topic nào để thêm.
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              'No topic to add'), // Hiển thị thông báo không có topic để thêm.
+              'No topic to add'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -154,21 +153,21 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add topic to folder'), // Tiêu đề của hộp thoại.
+          title: Text('Add topic to folder'),
           content: SizedBox(
-            width: double.maxFinite, // Đảm bảo nội dung hộp thoại không bị cắt.
+            width: double.maxFinite,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: showTopics.length, // Số lượng topic cần hiển thị.
+              itemCount: showTopics.length,
               itemBuilder: (context, index) {
                 Topic topic = showTopics[index]; // Lấy topic từ danh sách.
                 return ListTile(
                   title: Text(topic.topicName), // Hiển thị tên topic.
                   onTap: () {
                     Navigator.pop(
-                        context); // Đóng hộp thoại khi người dùng chọn topic.
+                        context);
                     _addTopicToFolder(
-                        topic.id); // Gọi phương thức thêm topic vào folder.
+                        topic.id);
                   },
                 );
               },
@@ -179,28 +178,28 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
     );
   }
 
-  // Phương thức để hiển thị danh sách các topic có thể xóa khỏi folder.
+
   void _showTopicsInFolderDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Remove topic from folder'), // Tiêu đề của hộp thoại.
+          title: Text('Remove topic from folder'),
           content: SizedBox(
-            width: double.maxFinite, // Đảm bảo nội dung hộp thoại không bị cắt.
+            width: double.maxFinite,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: topics.length, // Số lượng topic hiện tại trong folder.
+              itemCount: topics.length,
               itemBuilder: (context, index) {
                 Topic topic =
-                    topics[index]; // Lấy topic từ danh sách trong folder.
+                    topics[index];
                 return ListTile(
                   title: Text(topic.topicName), // Hiển thị tên topic.
                   onTap: () {
                     Navigator.pop(
-                        context); // Đóng hộp thoại khi người dùng chọn topic.
+                        context);
                     _removeTopicFromFolder(
-                        topic.id); // Gọi phương thức xóa topic khỏi folder.
+                        topic.id);
                   },
                 );
               },
@@ -221,13 +220,13 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
             Navigator.pop(context); // Quay lại màn hình trước.
           },
         ),
-        title: Center(child: Text('Topic List')), // Tiêu đề của app bar.
+        title: Center(child: Text('Topic List')),
         actions: [
           TextButton(
               onPressed: () {
                 if (topics.isNotEmpty) {
-                  // Kiểm tra xem folder có topic nào không.
-                  _showTopicsInFolderDialog(); // Hiển thị hộp thoại xóa topic khỏi folder.
+
+                  _showTopicsInFolderDialog();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -247,15 +246,15 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
             Expanded(
               child: topics.isNotEmpty // Kiểm tra nếu có topic trong folder.
                   ? ListView.builder(
-                      itemCount: topics.length, // Số lượng topic trong folder.
+                      itemCount: topics.length,
                       itemBuilder: (context, index) {
                         Topic topic =
                             topics[index]; // Lấy topic trong danh sách.
                         return TopicItem(
                           isLibrary:
-                              true, // Dùng widget TopicItem để hiển thị thông tin topic.
+                              true,
                           topic: topic,
-                          username: widget.username, // Truyền tên người dùng.
+                          username: widget.username,
                           onDelete:
                               deleteTopic, // Phương thức xóa topic (chưa triển khai).
                         );
@@ -263,7 +262,7 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
                     )
                   : Center(
                       child: Text(
-                        'Empty folder', // Nếu folder không có topic, hiển thị thông báo này.
+                        'Empty folder',
                       ),
                     ),
             )
@@ -272,9 +271,9 @@ class _ListTopicsInFolderScreenState extends State<ListTopicsInFolderScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAllTopicsDialog(); // Hiển thị hộp thoại chọn topic để thêm vào folder.
+          _showAllTopicsDialog();
         },
-        child: Icon(Icons.add), // Biểu tượng nút thêm topic.
+        child: Icon(Icons.add),
       ),
     );
   }

@@ -7,63 +7,62 @@ import 'package:flutter/material.dart'; // Import thư viện Flutter cho UI.
 import 'package:http/http.dart'
     as http; // Import thư viện HTTP để thực hiện các yêu cầu mạng.
 import 'config.dart'; // Import file cấu hình chứa các URL cần thiết.
-import 'loading_overlay.dart'; // Import widget LoadingOverlay (hiển thị overlay khi đang tải).
+import 'loading_overlay.dart';
 
 class ForgotPassword extends StatefulWidget {
-  // Lớp StatefulWidget cho màn hình quên mật khẩu.
   const ForgotPassword({super.key});
 
   @override
   State<ForgotPassword> createState() =>
-      _ForgotPasswordState(); // Trạng thái của màn hình quên mật khẩu.
+      _ForgotPasswordState();
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  // Lớp trạng thái cho màn hình quên mật khẩu.
+
   final urlRoot = kIsWeb
       ? webURL
-      : androidURL; // Xác định URL cho Web hoặc Android dựa vào nền tảng.
+      : androidURL;
 
   TextEditingController emailController =
-      TextEditingController(); // Controller để điều khiển TextField cho email.
-  bool _isNotValidate = false; // Cờ kiểm tra tính hợp lệ của email.
-  bool _isLoading = false; // Cờ để theo dõi trạng thái tải (loading).
+      TextEditingController();
+  bool _isNotValidate = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
   }
 
-  // Hàm reset mật khẩu
+
   void resetPassword() async {
     setState(() {
-      _isLoading = true; // Bắt đầu tải (hiển thị overlay).
+      _isLoading = true;
     });
 
     // Kiểm tra nếu email không rỗng
     if (emailController.text.isNotEmpty) {
       var reqBody = {
-        'email': emailController.text, // Dữ liệu yêu cầu gửi lên server.
+        'email': emailController.text,
       };
 
-      // Gửi yêu cầu HTTP POST đến API để reset mật khẩu
+
       var res = await http.post(Uri.parse('$urlRoot/accounts/reset'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(reqBody));
 
       var jsonResponse =
-          jsonDecode(res.body); // Giải mã phản hồi JSON từ server.
+          jsonDecode(res.body);
       setState(() {
-        _isLoading = false; // Kết thúc trạng thái tải.
+        _isLoading = false;
       });
 
       if (jsonResponse['code'] == 0) {
-        // Nếu mã phản hồi là 0, có nghĩa là reset thành công
+
         showSuccessToast(
           context: context,
           title: 'Success',
           description:
-              'Please check email to take new password', // Thông báo thành công.
+              'Please check email to take new password',
         );
         // Chuyển hướng đến màn hình đăng nhập.
         Navigator.push(
@@ -88,19 +87,19 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       decoration: BoxDecoration(
         image: DecorationImage(
             image: AssetImage('assets/login.png'),
-            fit: BoxFit.cover), // Hình nền của màn hình.
+            fit: BoxFit.cover),
       ),
       child: Scaffold(
         backgroundColor:
-            Colors.transparent, // Màu nền trong suốt để hình nền hiển thị.
+            Colors.transparent,
         body: LoadingOverlay(
-          isLoading: _isLoading, // Trạng thái hiển thị loading overlay.
+          isLoading: _isLoading,
           child: Stack(
             children: [
-              Container(), // Container nền, không có nội dung.
+              Container(),
               Container(
                 padding: EdgeInsets.only(
-                    left: 35, top: 130), // Padding cho phần text.
+                    left: 35, top: 130),
                 child: Text(
                   'Reset\nPassword', // Tiêu đề màn hình
                   style: TextStyle(color: Colors.white, fontSize: 33),

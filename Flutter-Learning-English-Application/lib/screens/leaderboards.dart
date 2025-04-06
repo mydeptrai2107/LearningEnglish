@@ -149,7 +149,7 @@ class _LeaderBoardsState extends State<LeaderBoards> {
                                       color: Colors.black, fontSize: 17),
                                 ),
                                 Text(
-                                  'Rank: ${achievement.rank}', // Hạng của thành tích
+                                  'Rank: ${achievement.rank}',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 17,
@@ -170,7 +170,7 @@ class _LeaderBoardsState extends State<LeaderBoards> {
                             alignment: Alignment.centerRight,
                             child: _buildCategoryText(
                               achievement.category,
-                              achievement.achievement, // Giá trị thành tích
+                              achievement.achievement,
                             ),
                           ),
                         ],
@@ -186,7 +186,7 @@ class _LeaderBoardsState extends State<LeaderBoards> {
               );
             }
             return Center(
-              child: CircularProgressIndicator(), // Hiển thị vòng tròn chờ khi chưa có dữ liệu
+              child: CircularProgressIndicator(),
             );
           },
         ),

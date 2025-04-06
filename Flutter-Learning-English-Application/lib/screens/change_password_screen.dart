@@ -11,7 +11,7 @@ import 'package:application_learning_english/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-// StatefulWidget để thay đổi mật khẩu, vì giao diện sẽ có sự thay đổi trạng thái trong quá trình người dùng tương tác.
+
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -20,76 +20,76 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  // Cấu hình URL cho Web và Android, sử dụng kIsWeb để xác định nền tảng.
+
   final urlRoot = kIsWeb ? webURL : androidURL;
 
-  // Controllers để điều khiển các trường nhập liệu cho mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu mới.
+
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // SharedPreferences để lưu trữ thông tin người dùng.
+
   late SharedPreferences prefs;
   bool _isNotValidate =
-      false; // Cờ để xác định nếu có lỗi trong việc nhập mật khẩu.
-  late User user; // Lưu trữ thông tin người dùng.
-  bool isLoading = false; // Cờ để xác định trạng thái loading (đang tải).
+      false;
+  late User user;
+  bool isLoading = false;
 
-  // Khởi tạo dữ liệu người dùng khi màn hình được tạo.
+
   @override
   void initState() {
     super.initState();
     initGetDataUser();
   }
 
-  // Hàm để lấy dữ liệu người dùng từ SharedPreferences và giải mã nó.
+
   void initGetDataUser() async {
     prefs = await SharedPreferences.getInstance();
     String? userJson = prefs.getString('user');
     if (userJson != null) {
       Map<String, dynamic> userMap =
-          jsonDecode(userJson); // Giải mã chuỗi JSON thành bản đồ.
-      user = User.fromJson(userMap); // Chuyển bản đồ thành đối tượng User.
+          jsonDecode(userJson);
+      user = User.fromJson(userMap);
     }
   }
 
-  // Hàm thay đổi mật khẩu, gọi API để thực hiện thay đổi mật khẩu.
+
   void changePassword() async {
-    // Kiểm tra nếu các trường nhập liệu không rỗng.
+
     if (_currentPasswordController.text.isNotEmpty &&
         _newPasswordController.text.isNotEmpty &&
         _confirmPasswordController.text.isNotEmpty) {
       // Kiểm tra xem mật khẩu mới và xác nhận mật khẩu mới có khớp không.
       if (_newPasswordController.text == _confirmPasswordController.text) {
         setState(() {
-          isLoading = true; // Bật trạng thái loading khi bắt đầu gửi yêu cầu.
+          isLoading = true;
         });
 
-        // Tạo thân yêu cầu với các thông tin cần thiết (ID người dùng và mật khẩu).
+
         var reqBody = {
           '_id': user.uid,
           'oldPassword': _currentPasswordController.text,
           'newPassword': _newPasswordController.text
         };
 
-        // Gửi yêu cầu POST đến API để thay đổi mật khẩu.
+
         var res = await http.post(Uri.parse('$urlRoot/accounts/changePassword'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(reqBody)); // Chuyển dữ liệu thành chuỗi JSON.
+            body: jsonEncode(reqBody));
 
-        var jsonResponse = jsonDecode(res.body); // Giải mã phản hồi từ server.
+        var jsonResponse = jsonDecode(res.body);
 
         setState(() {
-          isLoading = false; // Tắt trạng thái loading khi hoàn tất yêu cầu.
+          isLoading = false;
         });
 
-        // Kiểm tra mã phản hồi từ server.
+
         if (jsonResponse['code'] == 0) {
           showSuccessToast(
               context: context,
               title: 'Success',
               description: 'Change password successfully!');
-          Navigator.pop(context); // Quay lại màn hình trước đó.
+          Navigator.pop(context);
         } else {
           showErrorToast(
               context: context,
@@ -97,7 +97,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               description: jsonResponse['message']);
         }
       } else {
-        // Nếu mật khẩu mới và mật khẩu xác nhận không khớp.
+
         showErrorToast(
             context: context,
             title: 'Error',
@@ -106,8 +106,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     } else {
       setState(() {
         _isNotValidate =
-            true; // Đánh dấu có lỗi khi các trường nhập liệu còn trống.
-        isLoading = false; // Tắt trạng thái loading nếu có lỗi.
+            true;
+        isLoading = false;
       });
     }
   }
@@ -119,10 +119,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         leading: IconButton(
           onPressed: () {
             Navigator.pop(
-                context); // Quay lại màn hình trước đó khi nhấn vào nút quay lại.
+                context);
           },
           icon:
-              const Icon(Ionicons.chevron_back_outline), // Biểu tượng quay lại.
+              const Icon(Ionicons.chevron_back_outline),
         ),
         leadingWidth: 80,
         actions: [
@@ -130,24 +130,24 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
               onPressed: () {
-                changePassword(); // Gọi hàm thay đổi mật khẩu khi nhấn nút "Check".
+                changePassword();
               },
               style: IconButton.styleFrom(
-                backgroundColor: Colors.lightBlueAccent, // Màu nền của nút.
+                backgroundColor: Colors.lightBlueAccent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15), // Định dạng góc nút.
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                fixedSize: Size(60, 50), // Kích thước nút.
-                elevation: 3, // Độ cao bóng đổ.
+                fixedSize: Size(60, 50),
+                elevation: 3,
               ),
               icon: Icon(Ionicons.checkmark,
-                  color: Colors.white), // Biểu tượng "Check" màu trắng.
+                  color: Colors.white),
             ),
           ),
         ],
       ),
       body: LoadingOverlay(
-        isLoading: isLoading, // Hiển thị overlay khi đang tải.
+        isLoading: isLoading,
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(30),
@@ -162,7 +162,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                // Các trường nhập liệu cho mật khẩu hiện tại, mật khẩu mới và xác nhận mật khẩu.
+
                 EditItem(
                   title: "Current Password",
                   widget: TextField(
@@ -196,7 +196,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   title: "Confirm New Password",
                   widget: TextField(
                     controller: _confirmPasswordController,
-                    obscureText: true, // Ẩn mật khẩu khi nhập.
+                    obscureText: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Confirm New Password',
@@ -216,7 +216,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   void dispose() {
-    // Giải phóng bộ điều khiển khi không còn sử dụng.
+
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -224,10 +224,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 }
 
-// Widget con EditItem dùng để hiển thị mỗi trường nhập liệu.
+
 class EditItem extends StatelessWidget {
-  final String title; // Tiêu đề của trường nhập liệu.
-  final Widget widget; // Widget nhập liệu (ví dụ: TextField).
+  final String title;
+  final Widget widget;
 
   const EditItem({
     required this.title,
@@ -248,7 +248,7 @@ class EditItem extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        widget, // Hiển thị widget nhập liệu.
+        widget,
       ],
     );
   }

@@ -4,72 +4,63 @@ import 'package:ionicons/ionicons.dart'; // Thư viện để sử dụng các b
 import 'package:shared_preferences/shared_preferences.dart'; // Thư viện để lưu trữ dữ liệu nhỏ gọn trên thiết bị người dùng
 
 import '../user.dart'; // Import lớp User từ tệp khác để sử dụng thông tin người dùng
-import '../widgets/edit_item.dart'; // Import widget EditItem để tái sử dụng các mục chỉnh sửa trong giao diện
+import '../widgets/edit_item.dart';
 
 class EditAccountScreen extends StatefulWidget {
   const EditAccountScreen(
-      {super.key}); // Khai báo widget chính của màn hình chỉnh sửa tài khoản
+      {super.key});
 
   @override
   State<EditAccountScreen> createState() =>
-      _EditAccountScreenState(); // Tạo trạng thái cho màn hình chỉnh sửa tài khoản
+      _EditAccountScreenState();
 }
 
 class _EditAccountScreenState extends State<EditAccountScreen> {
   String gender =
-      "man"; // Biến để lưu giới tính của người dùng (mặc định là "man")
-  late TextEditingController _nameController; // Controller cho trường "Tên"
+      "man";
+  late TextEditingController _nameController;
   late TextEditingController
-      _usernameController; // Controller cho trường "Tên đăng nhập"
-  late TextEditingController _emailController; // Controller cho trường "Email"
+      _usernameController;
+  late TextEditingController _emailController;
 
-  late SharedPreferences prefs; // Khai báo biến để sử dụng SharedPreferences
-  User? user; // Biến lưu thông tin người dùng (dạng đối tượng User)
+  late SharedPreferences prefs;
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    // Khởi tạo các controller cho các trường nhập liệu
+
     _nameController = TextEditingController();
     _usernameController = TextEditingController();
     _emailController = TextEditingController();
-    getUserData(); // Gọi hàm lấy thông tin người dùng khi màn hình được khởi tạo
+    getUserData();
   }
 
-  // Hàm lấy thông tin người dùng từ SharedPreferences (hoặc nguồn lưu trữ)
+
   void getUserData() async {
     prefs = await SharedPreferences
-        .getInstance(); // Lấy instance của SharedPreferences
+        .getInstance();
     String? userJson = prefs
-        .getString('user'); // Lấy chuỗi JSON đã lưu trong SharedPreferences
+        .getString('user');
     if (userJson != null) {
-      // Kiểm tra nếu có thông tin người dùng
+
       Map<String, dynamic> userMap =
-          jsonDecode(userJson); // Chuyển chuỗi JSON thành Map
+          jsonDecode(userJson);
       setState(() {
-        user = User.fromJson(userMap); // Chuyển Map thành đối tượng User
+        user = User.fromJson(userMap);
         _nameController.text =
-            user!.fullName; // Đặt giá trị trường "Tên" từ đối tượng người dùng
+            user!.fullName;
         _usernameController.text =
-            user!.username; // Đặt giá trị trường "Tên đăng nhập"
-        _emailController.text = user!.email; // Đặt giá trị trường "Email"
-        // gender = user!.gender; // Có thể thêm chức năng lưu giới tính người dùng (được bỏ qua ở đây)
+            user!.username;
+        _emailController.text = user!.email;
+
       });
     }
   }
 
-  // Hàm lưu thông tin người dùng đã chỉnh sửa (hiện tại chưa được triển khai đầy đủ)
+
   void saveUserData() async {
-    // if (user != null) {
-    //   user.fullName = _nameController.text; // Cập nhật lại tên người dùng từ trường nhập liệu
-    //   // user!.age = int.tryParse(_ageController.text) ?? user!.age; // Cập nhật tuổi (chưa triển khai)
-    //   user!.email = _emailController.text; // Cập nhật email người dùng
-    //   // user!.gender = gender; // Cập nhật giới tính (có thể triển khai thêm)
-    //
-    //   String userJson = jsonEncode(user!.toJson()); // Chuyển đối tượng người dùng thành chuỗi JSON
-    //   await prefs.setString('user', userJson); // Lưu chuỗi JSON vào SharedPreferences
-    //   Navigator.pop(context); // Trở lại màn hình trước đó
-    // }
+
   }
 
   @override
@@ -84,16 +75,16 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 context); // Quay lại màn hình trước đó khi nhấn nút quay lại
           },
           icon:
-              const Icon(Ionicons.chevron_back_outline), // Biểu tượng quay lại
+              const Icon(Ionicons.chevron_back_outline),
         ),
-        leadingWidth: 80, // Đặt chiều rộng cho nút quay lại
+        leadingWidth: 80,
         actions: [
           Padding(
             padding: const EdgeInsets.only(
-                right: 10), // Khoảng cách phải cho biểu tượng xác nhận
+                right: 10),
             child: IconButton(
               onPressed:
-                  saveUserData, // Gọi hàm lưu thông tin người dùng khi nhấn nút lưu
+                  saveUserData,
               style: IconButton.styleFrom(
                 backgroundColor: Colors.lightBlueAccent, // Màu nền cho nút
                 shape: RoundedRectangleBorder(
@@ -154,12 +145,12 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 title: "Name",
                 widget: TextField(
                   controller:
-                      _nameController, // Controller để quản lý trường "Name"
+                      _nameController,
                 ),
               ),
               const SizedBox(height: 40),
               EditItem(
-                // Trường "Username", chỉ đọc (không thể chỉnh sửa)
+
                 title: "Username",
                 widget: TextField(
                   controller: _usernameController,
